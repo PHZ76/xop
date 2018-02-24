@@ -1,7 +1,9 @@
 // 2017-12-25
 // PHZ
 
-#include "xop/xop.h"
+// echo server
+
+#include "xop.h"
 
 #if defined(WIN32) || defined(_WIN32) 
 #pragma comment(lib, "Ws2_32.lib")
