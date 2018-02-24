@@ -1,6 +1,7 @@
 DEUBG = -DXOP_DEBUG
 
 TARGET = test
+OBJS_PATH = objs
 
 CXX   = g++
 CC    = gcc
@@ -15,21 +16,26 @@ CXX_FLAGS = -std=c++11
 O_FLAG   = -O2 -g 
 
 SRC1  = $(notdir $(wildcard ./example/*.cpp))	
-OBJS1 = $(patsubst %.cpp,objs/%.o,$(SRC1))	
+OBJS1 = $(patsubst %.cpp,$(OBJS_PATH)/%.o,$(SRC1))	
 
 SRC2  = $(notdir $(wildcard ./src/*.cpp))		
-OBJS2 = $(patsubst %.cpp,objs/%.o,$(SRC2))	
+OBJS2 = $(patsubst %.cpp,$(OBJS_PATH)/%.o,$(SRC2))	
+	
+all: BUILD_DIR $(TARGET)
 
+BUILD_DIR:
+	@-mkdir -p $(OBJS_PATH)
+	
 $(TARGET) : $(OBJS1) $(OBJS2) 
 	$(CXX) $^ -o $@ $(CFLAGS) $(LD_FLAGS) 
 
-objs/%.o : ./example/%.cpp  
+$(OBJS_PATH)/%.o : ./example/%.cpp  
 	$(CXX) -c  $< -o  $@ $(CXX_FLAGS) $(LD_FLAGS) $(INC)
-objs/%.o : ./src/%.cpp  
+$(OBJS_PATH)/%.o : ./src/%.cpp  
 	$(CXX) -c  $< -o  $@ $(CXX_FLAGS) $(LD_FLAGS) 
-
+	
 clean: 
-	rm $(OBJS1) $(OBJS2) $(TARGET)
+	-rm -rf $(OBJS_PATH) $(TARGET)
 
 
 
