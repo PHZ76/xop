@@ -17,7 +17,7 @@ public:
 	
 	bool append(std::shared_ptr<char> data, uint32_t size, uint32_t index=0);
 	bool append(const char* data, uint32_t size, uint32_t index=0);
-	int send(int sockfd);
+	int send(int sockfd, int timeout=0); // timeout: ms
 	
 	bool isEmpty() const 
 	{ return _buffer.empty(); }

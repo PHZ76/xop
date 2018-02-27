@@ -30,7 +30,7 @@ void SocketUtil::setNonBlock(SOCKET fd)
 #endif
 }
 
-void SocketUtil::setBlock(SOCKET fd)
+void SocketUtil::setBlock(SOCKET fd, int writeTimeout)
 {
 #if defined(__linux) || defined(__linux__) 
 	int flags = fcntl(fd, F_GETFL, 0);
@@ -40,6 +40,19 @@ void SocketUtil::setBlock(SOCKET fd)
 	ioctlsocket(fd, FIONBIO, &on);
 #else
 #endif
+	if(writeTimeout > 0)
+	{
+#ifdef SO_SNDTIMEO
+#if defined(__linux) || defined(__linux__) 
+		struct timeval tv = {writeTimeout/1000, (writeTimeout%1000)*1000};
+		setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char*)&tv, sizeof tv);
+#elif defined(WIN32) || defined(_WIN32)
+		unsigned long ms = (unsigned long)writeTimeout;
+		setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char *)&ms, sizeof(unsigned long));
+#else
+#endif		
+#endif
+	}
 }
 
 void SocketUtil::setReuseAddr(SOCKET sockfd)
@@ -126,3 +139,5 @@ void SocketUtil::close(SOCKET sockfd)
 	::closesocket(sockfd);
 #endif
 }
+
+

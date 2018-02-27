@@ -77,6 +77,8 @@ namespace xop
 		uint32_t readAll(std::string& data);
 		uint32_t readUntilCrlf(std::string& data);
 	
+		//bool append();
+	
 		uint32_t bufferSize() const 
 		{ 
 			return _buffer.size(); 

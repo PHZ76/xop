@@ -11,7 +11,7 @@ class SocketUtil
 public:
 	static bool bind(SOCKET sockfd, std::string ip, uint16_t port);
 	static void setNonBlock(SOCKET fd);
-	static void setBlock(SOCKET fd);
+	static void setBlock(SOCKET fd, int writeTimeout=0);
 	static void setReuseAddr(SOCKET fd);
 	static void setReusePort(SOCKET sockfd);
 	static void setNoDelay(SOCKET sockfd);
