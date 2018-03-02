@@ -3,22 +3,26 @@
 
 using namespace xop;
 
-EventLoop::EventLoop()
+EventLoop::EventLoop(TaskScheduler* taskScheduler)
 	: _shutdown(false)
+	, _taskScheduler(taskScheduler)
 	, _wakeupPipe(std::make_shared<Pipe>())
 	, _triggerEvents(new TriggerEventQueue(kMaxTriggetEvents))
 {
+	if(!_taskScheduler)
+	{
 #if defined(__linux) || defined(__linux__) 
-	_taskScheduler = new EpollTaskScheduler(); // SelectTaskScheduler(); 
+		_taskScheduler = new EpollTaskScheduler(); // SelectTaskScheduler(); 
 #else
-	_taskScheduler = new SelectTaskScheduler(); 
+		_taskScheduler = new SelectTaskScheduler(); 
 #endif
+	}
 	
 	if(_wakeupPipe->create())
 	{
 		_wakeupChannel.reset(new Channel(_wakeupPipe->readfd()));
 		_wakeupChannel->setEvents(EVENT_IN);
-		_wakeupChannel->setReadCallback(std::bind(&EventLoop::wake, this));
+		_wakeupChannel->setReadCallback([this]() {this->wake();});
 		_taskScheduler->updateChannel(_wakeupChannel);
 	}
 }
@@ -59,8 +63,8 @@ TimerId EventLoop::addTimer(TimerEvent timerEvent, uint32_t ms, bool repeat)
 {
 	TimerId id = _timerQueue.addTimer(timerEvent, ms, repeat);
 	
-	char event = kTimerEvent;
-	_wakeupPipe->write(&event, 1);
+	//char event = kTimerEvent;
+	//_wakeupPipe->write(&event, 1);
 		
 	return id;
 }

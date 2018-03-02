@@ -75,15 +75,17 @@ namespace xop
 				_errorCallback();	
 			}
 		}
-		
+	
 	private:
-		int _fd = 0;
-		int _events = 0;
-
+	
 		EventCallback _readCallback  = []{};
 		EventCallback _writeCallback = []{};
 		EventCallback _closeCallback = []{};
 		EventCallback _errorCallback = []{};
+		
+		int _fd = 0;
+		int _events = 0;
+		
 	};
 
 	typedef std::shared_ptr<Channel> ChannelPtr;

@@ -4,8 +4,8 @@
 
 using namespace xop;
 
-BufferWriter::BufferWriter(int bufferSize) 
-	: _maxQueueLength(bufferSize)
+BufferWriter::BufferWriter(int capacity) 
+	: _maxQueueLength(capacity)
 {
 	
 }	

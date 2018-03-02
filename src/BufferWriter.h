@@ -12,7 +12,7 @@ namespace xop
 class BufferWriter
 {
 public:
-	BufferWriter(int bufferSize=kMaxQueueLength);
+	BufferWriter(int capacity=kMaxQueueLength);
 	~BufferWriter() {}
 	
 	bool append(std::shared_ptr<char> data, uint32_t size, uint32_t index=0);

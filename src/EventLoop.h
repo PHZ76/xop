@@ -22,7 +22,7 @@ typedef std::function<void(void)> TriggerEvent;
 class EventLoop 
 {
 public:
-	EventLoop();
+	EventLoop(TaskScheduler* taskScheduler=nullptr);
 	virtual ~EventLoop();
 
 	void loop();

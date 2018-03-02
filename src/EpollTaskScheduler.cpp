@@ -25,7 +25,6 @@ void EpollTaskScheduler::updateChannel(ChannelPtr channel)
 	std::lock_guard<std::mutex> lock(_mutex);
 #if defined(__linux) || defined(__linux__) 
 	int fd = channel->fd();
-	
 	if(_channels.find(fd) != _channels.end())		// 
 	{
 		if(channel->isNoneEvent())
@@ -52,12 +51,11 @@ void EpollTaskScheduler::updateChannel(ChannelPtr channel)
 void EpollTaskScheduler::update(int operation, ChannelPtr& channel)
 {
 #if defined(__linux) || defined(__linux__) 
-	int fd = channel->fd();
 	struct epoll_event event = {0};
 	event.data.ptr = channel.get();
 	event.events = channel->events();
   
-	if(::epoll_ctl(_epollfd, operation, fd, &event) < 0)
+	if(::epoll_ctl(_epollfd, operation, channel->fd(), &event) < 0)
 	{
 
 	}
@@ -81,10 +79,10 @@ void EpollTaskScheduler::removeChannel(ChannelPtr& channel)
 bool EpollTaskScheduler::handleEvent(int timeout)
 {
 #if defined(__linux) || defined(__linux__) 
-	struct epoll_event events[500] = {0};
+	struct epoll_event events[100] = {0};
 	int numEvents = -1;
 	
-	numEvents = epoll_wait(_epollfd, events, 500, timeout);
+	numEvents = epoll_wait(_epollfd, events, 100, timeout);
 	if(numEvents < 0)  // 
 	{
 		if(errno != EINTR)
@@ -97,6 +95,7 @@ bool EpollTaskScheduler::handleEvent(int timeout)
 	{
 		if(events[n].data.ptr)
 		{
+			//Channel *channel = (Channel *)events[n].data.ptr;
 			((Channel *)events[n].data.ptr)->handleEvent(events[n].events);
 		}
 	}		

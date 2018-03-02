@@ -18,7 +18,7 @@ template <typename T>
 class RingBuffer
 {
 public:
-	RingBuffer(unsigned capacity=30)
+	RingBuffer(unsigned capacity=60)
 		: _buffer(capacity)
 		, _capacity(capacity)
 		, _numDatas(0)
