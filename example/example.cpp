@@ -16,33 +16,33 @@ using namespace std;
 class EchoServer : public TcpServer
 {
 public:
-	EchoServer(EventLoop* loop, std::string ip, uint16_t port)
-		: TcpServer(loop, ip, port)
-	{
-		_messageCallback = std::bind(&EchoServer::echo, this, std::placeholders::_1);
-	}
+    EchoServer(EventLoop* loop, std::string ip, uint16_t port)
+        : TcpServer(loop, ip, port)
+    {
+        _messageCallback = std::bind(&EchoServer::echo, this, std::placeholders::_1);
+    }
 
 private:
-	void echo(const TcpConnectionPtr& conn)
-	{
-		string message;
-		if (conn->read(message) > 0)
-		{
-			conn->send(message.c_str(), message.size());
-		}
-	}
+    void echo(const TcpConnectionPtr& conn)
+    {
+        string message;
+        if (conn->read(message) > 0)
+        {
+            conn->send(message.c_str(), message.size());
+        }
+    }
 };
 
 int main()
 {
-	XOP_Init();
+    XOP_Init();
 
-	EventLoop eventLoop;
-	EchoServer echoServer(&eventLoop, NetInterface::getLocalIPAddress(), 5678);
-	
-	eventLoop.loop();
+    EventLoop eventLoop;
+    EchoServer echoServer(&eventLoop, NetInterface::getLocalIPAddress(), 5678);
 
-	getchar();
-	return 0;
+    eventLoop.loop();
+
+    getchar();
+    return 0;
 }
 
