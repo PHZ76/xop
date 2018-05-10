@@ -11,7 +11,7 @@
 目前情况<br>
 -
 * 支持 Windows 和 Linux, 在 Windows 下使用 select, Linux 下使用 epoll。<br>
-* 实现了定时器，日志，环形缓冲区等模块。<br>
+* 实现了定时器，触发事件，日志，环形缓冲区等模块。<br>
 
 编译环境<br>
 -
