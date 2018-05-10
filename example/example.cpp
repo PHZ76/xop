@@ -33,15 +33,19 @@ private:
     }
 };
 
-int main()
+int main(int argc, char** argv)
 {
     XOP_Init();
-
+    
+    std::string ip = NetInterface::getLocalIPAddress();
+   
     EventLoop eventLoop;
-    EchoServer echoServer(&eventLoop, NetInterface::getLocalIPAddress(), 5678);
+    EchoServer echoServer(&eventLoop, ip, 56789);
 
-    eventLoop.loop();
-
+    std::cout << "Echo server running on " << ip << ":" << "56789" << std::endl;
+    
+    eventLoop.loop();    
+    
     getchar();
     return 0;
 }
