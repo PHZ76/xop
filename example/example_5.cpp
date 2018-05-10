@@ -26,17 +26,17 @@ void readThread(RingBuffer<string>& ringBuffer)
 
 int test_5() // int main()
 {
-	RingBuffer<string> ringBuffer;
-    
+    RingBuffer<string> ringBuffer;
+
     thread t(readThread, std::ref(ringBuffer));
     t.detach();
-	
-	while(1)
-	{
-		Timer::sleep(500);        
+
+    while(1)
+    {
+        Timer::sleep(500);        
         ringBuffer.push(string("*"));
-	}
+    }
 	
-	return 0;
+    return 0;
 }
 
