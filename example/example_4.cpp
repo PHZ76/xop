@@ -12,7 +12,7 @@ using namespace xop;
 void output(std::shared_ptr<TaskScheduler> taskScheduler, std::shared_ptr<Channel> stdoutChannel, std::string data)
 {
     cout << "input: " << data << endl;
-    
+
     // 取消写事件, 否则写事件会一直触发
     if(stdoutChannel->isWriting())
     {
@@ -23,8 +23,8 @@ void output(std::shared_ptr<TaskScheduler> taskScheduler, std::shared_ptr<Channe
 
 void input(std::shared_ptr<TaskScheduler> taskScheduler, std::shared_ptr<Channel> stdoutChannel)
 {
-	string data;
-	cin >> data;
+    string data;
+    cin >> data;
       
     //触发写事件
     if(!stdoutChannel->isWriting())
@@ -37,22 +37,22 @@ void input(std::shared_ptr<TaskScheduler> taskScheduler, std::shared_ptr<Channel
 
 int test_4() // int main()
 {
-	std::shared_ptr<TaskScheduler> taskScheduler(new SelectTaskScheduler());
+    std::shared_ptr<TaskScheduler> taskScheduler(new SelectTaskScheduler());
         
-	std::shared_ptr<Channel> stdinChannel(new Channel(0));  // stdin fd: 0
+    std::shared_ptr<Channel> stdinChannel(new Channel(0));  // stdin fd: 0
     std::shared_ptr<Channel> stdoutChannel(new Channel(1)); // stdout fd: 1 
-    
+
     // 监听读事件
     stdinChannel->setEvents(EVENT_IN);
-	stdinChannel->setReadCallback(std::bind(input, taskScheduler, stdoutChannel));
-	taskScheduler->updateChannel(stdinChannel);
-    
-	while(1)
-	{
-		taskScheduler->handleEvent(1000/*ms*/);
-	}
-	
-	return 0;
+    stdinChannel->setReadCallback(std::bind(input, taskScheduler, stdoutChannel));
+    taskScheduler->updateChannel(stdinChannel);
+
+    while(1)
+    {
+        taskScheduler->handleEvent(1000/*ms*/);
+    }
+
+    return 0;
 }
 
 
