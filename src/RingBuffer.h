@@ -26,8 +26,11 @@ public:
 	
     ~RingBuffer() {	}
 
-    bool push(const T& data) { return pushData(std::forward<T>(data)); } 	
-    bool push(T&& data) { return pushData(data); } 
+    bool push(const T& data) 
+    { return pushData(std::forward<T>(data)); } 
+	
+    bool push(T&& data) 
+    { return pushData(data); } 
         
     bool pop(T& data)
     {
@@ -42,9 +45,14 @@ public:
         return false;
     }	
 
-    bool isFull()  const { return ((_numDatas==_capacity)?true:false); }	
-    bool isEmpty() const { return ((_numDatas==0)?true:false); }
-    int size() const { return _numDatas; }
+    bool isFull()  const 
+    { return ((_numDatas==_capacity)?true:false); }	
+    
+    bool isEmpty() const 
+    { return ((_numDatas==0)?true:false); }
+    
+    int size() const 
+    { return _numDatas; }
 	
 private:		
 	template <typename F>

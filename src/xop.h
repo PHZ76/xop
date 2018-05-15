@@ -6,6 +6,7 @@
 #include "NetInterface.h"
 #include "Timer.h"
 #include "Timestamp.h"
+#include "Logger.h"
 
 bool XOP_Init();
 
