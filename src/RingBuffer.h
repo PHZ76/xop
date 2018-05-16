@@ -1,10 +1,5 @@
-/********************************************
-*文件名: RingBuffer.h
-*创建者: PHZ
-*时间:	 2017-10-6
-*说明:	 线程安全环形缓冲区
-*修改记录:
-*********************************************/
+// PHZ
+// 2018-5-15
 
 #ifndef _RING_BUFFER_H
 #define _RING_BUFFER_H
@@ -26,11 +21,8 @@ public:
 	
     ~RingBuffer() {	}
 
-    bool push(const T& data) 
-    { return pushData(std::forward<T>(data)); } 
-	
-    bool push(T&& data) 
-    { return pushData(data); } 
+    bool push(const T& data) { return pushData(std::forward<T>(data)); } 	
+    bool push(T&& data) { return pushData(data); } 
         
     bool pop(T& data)
     {
@@ -45,14 +37,9 @@ public:
         return false;
     }	
 
-    bool isFull()  const 
-    { return ((_numDatas==_capacity)?true:false); }	
-    
-    bool isEmpty() const 
-    { return ((_numDatas==0)?true:false); }
-    
-    int size() const 
-    { return _numDatas; }
+    bool isFull()  const { return ((_numDatas==_capacity)?true:false); }	
+    bool isEmpty() const { return ((_numDatas==0)?true:false); }
+    int size() const { return _numDatas; }
 	
 private:		
 	template <typename F>

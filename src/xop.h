@@ -1,12 +1,14 @@
-#ifndef _XOP_INIT_H
-#define _XOP_INIT_H
+// PHZ
+// 2018-5-15
+
+#ifndef XOP_INIT_H
+#define XOP_INIT_H
 
 #include "TcpServer.h"
 #include "EventLoop.h"
 #include "NetInterface.h"
 #include "Timer.h"
 #include "Timestamp.h"
-#include "Logger.h"
 
 bool XOP_Init();
 

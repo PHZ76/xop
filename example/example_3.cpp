@@ -4,13 +4,7 @@
 // log
 
 #include "xop.h"
-
-#if defined(WIN32) || defined(_WIN32) 
-#pragma comment(lib, "Ws2_32.lib")
-#pragma comment(lib,"Iphlpapi.lib")
-#endif 
-
-#include "xop.h"
+#include "Logger.h"
 
 #if defined(WIN32) || defined(_WIN32) 
 #pragma comment(lib, "Ws2_32.lib")
