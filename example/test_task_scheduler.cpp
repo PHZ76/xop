@@ -35,7 +35,7 @@ void input(std::shared_ptr<TaskScheduler> taskScheduler, std::shared_ptr<Channel
     }    
 }
 
-int test_4() // int main()
+int main()
 {
     std::shared_ptr<TaskScheduler> taskScheduler(new SelectTaskScheduler());
         

@@ -20,7 +20,7 @@ void show()
     std::cout << Timestamp::localtime() << std::endl;
 }
 
-int test_2() // int main()
+int main()
 {
     std::shared_ptr<EventLoop> eventLoop = make_shared<EventLoop>(); 
 

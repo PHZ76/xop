@@ -24,7 +24,7 @@ void readThread(RingBuffer<string>& ringBuffer)
     }   
 }
 
-int test_5() // int main()
+int main()
 {
     RingBuffer<string> ringBuffer;
 

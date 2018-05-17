@@ -14,7 +14,7 @@
 using namespace xop;
 using namespace std;
 
-int test_3() // int main()
+int main()
 {    
     //Logger::instance().setLogFile("log.txt");
     LOG_DEBUG("hello world.");    
