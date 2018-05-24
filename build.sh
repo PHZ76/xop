@@ -1,5 +1,6 @@
 #!/bin/bash
 sudo apt-get install cmake
+rm build -r
 mkdir -p build
 cd build
 cmake ..
