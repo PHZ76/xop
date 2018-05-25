@@ -18,7 +18,7 @@
 
 整体框架<br>
 - 
-![image](https://github.com/PHZ76/xop/tree/master/pic/1.pic.jpg) <br>
+![image](https://github.com/PHZ76/xop/blob/master/pic/1.pic.jpg) <br>
 
 
 后续计划<br>
