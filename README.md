@@ -1,12 +1,10 @@
 # C++11实现的轻量级网络框架
 
-
-项目初衷<br>
+项目介绍<br>
 -
 * 在工作中需要实现一个跨平台的流媒体转发服务，发现没有什么合适的网络库可以直接使用。在参考了开源网络库 muduo 和 开源流媒体服务器 live555 的设计后，重新封装了一个简单的网络框架。<br>
     <br>
 * 感谢 muduo，感谢 live555。<br>
-
 
 目前情况<br>
 -
@@ -17,6 +15,11 @@
 -
 * Linux: ubuntu16.04 -- gcc4.7<br>
 * Windows: win10 -- vs2015<br>
+
+整体框架<br>
+- 
+![image](https://github.com/PHZ76/xop/pic/1.pic.jpg) <br>
+
 
 后续计划<br>
 -
