@@ -3,6 +3,7 @@
 
 #include "TcpSocket.h"
 #include "Socket.h"
+#include "SocketUtil.h"
 #include "log.h"
 
 using namespace xop;
@@ -51,7 +52,6 @@ bool TcpSocket::listen(int backlog)
 	return true;
 }
 
-
 SOCKET TcpSocket::accept()
 {
     struct sockaddr_in addr = {0};
@@ -62,18 +62,11 @@ SOCKET TcpSocket::accept()
     return clientfd;
 }
 
-bool TcpSocket::connect(std::string ip, uint16_t port)
+bool TcpSocket::connect(std::string ip, uint16_t port, int timeout)
 { 
-    struct sockaddr_in addr = {0};  		
-    socklen_t addrlen = sizeof(addr);
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(port);
-    addr.sin_addr.s_addr = inet_addr(ip.c_str());
-
-    if(::connect(_sockfd, (struct sockaddr*)&addr, addrlen) == SOCKET_ERROR)
+    if(!SocketUtil::connect(_sockfd, ip, port, timeout))
     {
         LOG("<socket=%d> connect failed.\n", _sockfd);
-        perror("connect()");
         return false;
     }
 
