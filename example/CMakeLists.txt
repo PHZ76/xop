@@ -13,3 +13,5 @@ target_link_libraries(test_task_scheduler ${CMAKE_PROJECT_NAME}_static pthread)
 add_executable(test_ringbuffer test_ringbuffer.cpp)
 target_link_libraries(test_ringbuffer ${CMAKE_PROJECT_NAME}_static pthread)
 
+add_executable(test_memory_pool test_memory_pool.cpp)
+target_link_libraries(test_memory_pool ${CMAKE_PROJECT_NAME}_static pthread)
