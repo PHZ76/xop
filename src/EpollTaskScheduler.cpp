@@ -10,7 +10,8 @@
 
 using namespace xop;
 
-EpollTaskScheduler::EpollTaskScheduler()
+EpollTaskScheduler::EpollTaskScheduler(int id)
+	: TaskScheduler(id)
 {
 #if defined(__linux) || defined(__linux__) 
     _epollfd = epoll_create1(0);

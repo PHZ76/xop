@@ -1,54 +1,67 @@
-#ifndef _QUEUE_H
-#define _QUEUE_H
+#ifndef Thread_SAFE_QUEUE_H
+#define Thread_SAFE_QUEUE_H
 
 #include <mutex>
 #include <queue>
 #include <condition_variable>
 
+namespace xop
+{
+    
 template<typename T>
-class threadsafe_queue
+class ThreadSafeQueue
 {
 public:
-    threadsafe_queue()
+    ThreadSafeQueue()
     {
         
     }
-    threadsafe_queue(threadsafe_queue const& other)
+    
+    ThreadSafeQueue(ThreadSafeQueue const& other)
     {
         std::lock_guard<std::mutex> lock(other._mutex);
         _dataQueue = other._dataQueue;
     }
 
-    ~threadsafe_queue()
+    ~ThreadSafeQueue()
     {
-        clear();
+       
     }
             
-    void push(T new_value)
+    void push(T value)
     {
         std::lock_guard<std::mutex> lock(_mutex);
-        _dataQueue.push(new_value);
+        _dataQueue.push(value);
         _dataCond.notify_one();
     }
         
-    void wait_and_pop(T& value)
+    bool waitAndPop(T& value)
     {
         std::unique_lock<std::mutex> lock(_mutex);
-        _dataCond.wait(lock,[this]{return !_dataQueue.empty();});
+        _dataCond.wait(lock);
+		if (_dataQueue.empty())
+		{
+			return false;
+		}
         value = _dataQueue.front();
         _dataQueue.pop();
+		return true;
     }
 
-    std::shared_ptr<T> wait_and_pop()
+    std::shared_ptr<T> waitAndPop()
     {
         std::unique_lock<std::mutex> lock(_mutex);
-        _dataCond.wait(lock,[this]{return !_dataQueue.empty();});
+        _dataCond.wait(lock);
+		if (_dataQueue.empty())
+		{
+			return nullptr;
+		}
         std::shared_ptr<T> res(std::make_shared<T>(_dataQueue.front()));
         _dataQueue.pop();
         return res;
     }
 
-    bool try_pop(T& value)
+    bool tryPop(T& value)
     {
         std::lock_guard<std::mutex> lock(_mutex);
         if(_dataQueue.empty())
@@ -60,7 +73,7 @@ public:
         return true;
     }
 
-    std::shared_ptr<T> try_pop()
+    std::shared_ptr<T> tryPop()
     {
         std::lock_guard<std::mutex> lock(_mutex);
         if(_dataQueue.empty())
@@ -84,15 +97,23 @@ public:
 
     void clear()
     {		
-        T value;
-        while(this->try_pop(value));
+        std::lock_guard<std::mutex> lock(_mutex);
+        std::queue<T> empty;
+        _dataQueue.swap(empty);
     } 
     
+	void wake()
+	{
+		_dataCond.notify_one();
+	}
+
 private:	
     mutable std::mutex _mutex;
     std::queue<T> _dataQueue;
     std::condition_variable _dataCond;    
 };
+
+}
 
 #endif 
 

@@ -25,7 +25,7 @@ public:
     void setNewConnectionCallback(NewConnectionCallback&& cb)
     { _newConnectionCallback = cb; }
 
-    void listen();
+    int listen();
 
 private:
     void handleAccept();

@@ -24,7 +24,7 @@ const char* Priority_To_String[] =
 Logger::Logger() 
     : _shutdown(false)
 {
-    _thread = std::thread(&Logger::processEntries, this);
+    _thread = std::thread(&Logger::run, this);
 }
 
 Logger& Logger::instance()
@@ -66,7 +66,7 @@ void Logger::log(Priority priority, const char* __file, const char* __func, int 
     _cond.notify_all(); 
 }
 
-void Logger::processEntries()
+void Logger::run()
 {
     std::unique_lock<std::mutex> lock(_mutex);
 

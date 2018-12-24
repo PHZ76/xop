@@ -15,8 +15,7 @@ bool SocketUtil::bind(SOCKET sockfd, std::string ip, uint16_t port)
     addr.sin_port = htons(port);  
 
     if(::bind(sockfd, (struct sockaddr*)&addr, sizeof addr) == SOCKET_ERROR)
-    {
-        //LOG(" <socket=%d> bind <%s:%u> failed.\n", sockfd, ip.c_str(), port);
+    {      
         return false;
     }
 

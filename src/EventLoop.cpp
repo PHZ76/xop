@@ -2,120 +2,119 @@
 // 2018-5-24
 
 #include "EventLoop.h"
-#include "xop.h"
 #if defined(__linux) || defined(__linux__) 
 #include <signal.h>
 #endif
 
+#if defined(WIN32) || defined(_WIN32) 
+#include<windows.h>
+#endif
+
+#if defined(WIN32) || defined(_WIN32) 
+#pragma comment(lib, "Ws2_32.lib")
+#pragma comment(lib,"Iphlpapi.lib")
+#endif 
+
 using namespace xop;
 
-EventLoop::EventLoop(TaskScheduler* taskScheduler)
-    : _shutdown(false)
-    , _taskScheduler(taskScheduler)
-    , _wakeupPipe(std::make_shared<Pipe>())
-    , _triggerEvents(new TriggerEventQueue(kMaxTriggetEvents))
+EventLoop::EventLoop(int nThreads)
 {
-    if(!_taskScheduler)
-    {
-#if defined(__linux) || defined(__linux__) 
-        _taskScheduler = new EpollTaskScheduler(); // SelectTaskScheduler(); 
-#else
-        _taskScheduler = new SelectTaskScheduler(); 
+    static std::once_flag oc_init;
+	std::call_once(oc_init, [] {
+#if defined(WIN32) || defined(_WIN32) 
+		WSADATA wsaData;
+		if (WSAStartup(MAKEWORD(2, 2), &wsaData))
+		{
+			WSACleanup();
+		}
 #endif
+	});
+    
+	for (int n=0; n<nThreads; n++)
+	{	
+#if defined(__linux) || defined(__linux__) 
+		std::shared_ptr<TaskScheduler> taskSchedulerPtr(new EpollTaskScheduler(n));
+#elif defined(WIN32) || defined(_WIN32) 
+		std::shared_ptr<TaskScheduler> taskSchedulerPtr(new SelectTaskScheduler(n));
+#endif
+		_taskSchedulers.push_back(taskSchedulerPtr);
+		if (n != 0)
+		{
+			std::shared_ptr<std::thread> t(new std::thread(&TaskScheduler::start, taskSchedulerPtr.get()));
+			_threads.push_back(t);
+		}
 	}
-
-    if(_wakeupPipe->create())
-    {
-        _wakeupChannel.reset(new Channel(_wakeupPipe->readfd()));
-        _wakeupChannel->setEvents(EVENT_IN);
-        _wakeupChannel->setReadCallback([this]() {this->wake();});
-        _taskScheduler->updateChannel(_wakeupChannel);
-    }
 }
 
 EventLoop::~EventLoop()
 {
-    delete _taskScheduler;
+	for (auto iter : _taskSchedulers)
+	{
+		iter->stop();
+	}
+
+	for (auto iter : _threads)
+	{
+		iter->join();
+	}
+}
+
+std::shared_ptr<TaskScheduler> EventLoop::getTaskScheduler(int index)
+{
+	if (index == 0)
+	{
+		return _taskSchedulers[0];
+	}
+
+	if (_taskSchedulers.size() == 1)
+	{
+		return _taskSchedulers[0];
+	}
+	else
+	{
+		static size_t index = 0;
+		index++;
+		if (index >= _taskSchedulers.size())
+		{
+			index = 1;
+		}
+		return _taskSchedulers[index];
+	}
+	
+	return nullptr;
 }
 
 void EventLoop::loop()
 {
-#if defined(__linux) || defined(__linux__) 
-    signal(SIGPIPE, SIG_IGN);
-    signal(SIGQUIT, SIG_IGN);
-    signal(SIGUSR1, SIG_IGN);
-    signal(SIGTERM, SIG_IGN);
-    signal(SIGKILL, SIG_IGN);
-#endif     
-	_shutdown = false;
-    while(!_shutdown)
-    {
-        handleTriggerEvent();
-        _timerQueue.handleTimerEvent();        
-        int64_t timeout = _timerQueue.getTimeRemaining();
-        _taskScheduler->handleEvent((int)timeout);        
-    }
+	_taskSchedulers[0]->start();
 }
 
 void EventLoop::quit()
 {
-    _shutdown = true;
-	char event = kTriggetEvent;
-	_wakeupPipe->write(&event, 1);
+	_taskSchedulers[0]->stop();
 }
 	
 void EventLoop::updateChannel(ChannelPtr channel)
 {
-    _taskScheduler->updateChannel(channel);
+	_taskSchedulers[0]->updateChannel(channel);
 }
 
 void EventLoop::removeChannel(ChannelPtr& channel)
 {
-    _taskScheduler->removeChannel(channel);
+	_taskSchedulers[0]->removeChannel(channel);
 }
 
-TimerId EventLoop::addTimer(TimerEvent timerEvent, uint32_t ms, bool repeat)
+TimerId EventLoop::addTimer(TimerEvent timerEvent, uint32_t msec)
 {
-    TimerId id = _timerQueue.addTimer(timerEvent, ms, repeat);		
-    return id;
+	return _taskSchedulers[0]->addTimer(timerEvent, msec);
 }
 
 void EventLoop::removeTimer(TimerId timerId)
 {
-    _timerQueue.removeTimer(timerId);
+	return _taskSchedulers[0]->removeTimer(timerId);
 }
 
 bool EventLoop::addTriggerEvent(TriggerEvent callback)
 {   
-    if(_triggerEvents->size() < kMaxTriggetEvents)
-    {
-        std::lock_guard<std::mutex> lock(_mutex);
-        char event = kTriggetEvent;
-        _triggerEvents->push(std::move(callback));
-        _wakeupPipe->write(&event, 1);
-        return true;
-    }
-
-    return false;
+	return _taskSchedulers[0]->addTriggerEvent(callback);
 }
-
-void EventLoop::wake()
-{
-    char event[10] = {0};
-    while(_wakeupPipe->read(event, 10) > 0);
-    
-    return ;
-}
-
-void EventLoop::handleTriggerEvent()
-{
-    do
-    {
-        TriggerEvent callback;
-        if(_triggerEvents->pop(callback))
-        {
-            callback();	
-        }           
-    } while(_triggerEvents->size() > 0);
-}
-

@@ -9,9 +9,7 @@
 
 #include <memory>
 #include <string>
-#include <unordered_map>
-#include "TcpConnection.h"
-#include "Acceptor.h"
+#include "Socket.h"
 
 namespace xop
 {
@@ -25,17 +23,11 @@ public:
     TcpServer(EventLoop* loop, std::string ip, uint16_t port);
     virtual ~TcpServer();  
 
-    void setMessageCallback(const MessageCallback& cb)
-    { _messageCallback = cb; }
-
 protected:
-    void newConnection(SOCKET sockfd);
-    void removeConnection(TcpConnectionPtr& conn);
+	virtual void newConnection(SOCKET sockfd);
 
     EventLoop* _eventLoop; 
     std::shared_ptr<Acceptor> _acceptor; 
-    MessageCallback _messageCallback;
-    std::unordered_map<int, std::shared_ptr<TcpConnection>> _connections;
 };
 
 }

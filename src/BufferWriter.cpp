@@ -69,7 +69,7 @@ int BufferWriter::send(int sockfd, int timeout)
     {
 #if defined(__linux) || defined(__linux__)
         if(errno==EINTR || errno==EAGAIN)			
-#else
+#elif defined(WIN32) || defined(_WIN32)
         int error = WSAGetLastError();
 		if (error == WSAEWOULDBLOCK || error == WSAEINPROGRESS || error == 0)
 #endif

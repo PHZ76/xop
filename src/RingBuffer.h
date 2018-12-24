@@ -1,13 +1,16 @@
 ﻿// PHZ
 // 2018-5-15
 
-#ifndef _RING_BUFFER_H
-#define _RING_BUFFER_H
+#ifndef XOP_RING_BUFFER_H
+#define XOP_RING_BUFFER_H
 
 #include <vector>
 #include <memory>
 #include <atomic>
 #include <iostream>
+
+namespace xop
+{
 
 template <typename T>
 class RingBuffer
@@ -68,6 +71,8 @@ private:
     std::atomic_int _numDatas;     			
     std::vector<T> _buffer;	
 };
+
+}
 
 #endif
 

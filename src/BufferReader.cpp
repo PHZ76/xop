@@ -25,13 +25,13 @@ int BufferReader::readFd(int sockfd)
     uint32_t size = writableBytes();
     if(size < MAX_BYTES_PER_READ) // 重新调整BufferReader大小
     {
-        uint32_t BufferReaderSize = _buffer.size();
-        if(BufferReaderSize > MAX_BUFFER_SIZE)
+        uint32_t bufferReaderSize = _buffer.size();
+        if(bufferReaderSize > MAX_BUFFER_SIZE)
         {
             return 0; // close
         }
         
-        _buffer.resize(BufferReaderSize + MAX_BYTES_PER_READ);
+        _buffer.resize(bufferReaderSize + MAX_BYTES_PER_READ);
     }
 	
     int bytesRead = ::recv(sockfd, beginWrite(), MAX_BYTES_PER_READ, 0);

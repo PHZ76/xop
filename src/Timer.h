@@ -17,16 +17,15 @@
 namespace xop
 {
     
-typedef std::function<void(void)> TimerEvent;
-typedef std::pair<int64_t, uint32_t> TimerId;
+typedef std::function<bool(void)> TimerEvent;
+typedef uint32_t TimerId;
 
 class Timer
 {
 public:
-    Timer(const TimerEvent& event, uint32_t ms, bool repeat)
+    Timer(const TimerEvent& event, uint32_t msec)
         : eventCallback(event)
-        , _interval(ms)
-        , _isRepeat(repeat)
+        , _interval(msec)
     {
         if (_interval == 0)
             _interval = 1;
@@ -34,41 +33,14 @@ public:
 
 	Timer() { }
 
-    bool isRepeat() const 
+    static void sleep(uint32_t msec)
     { 
-        return _isRepeat;
-    }
-
-    static void sleep(unsigned ms) 
-    { 
-        std::this_thread::sleep_for(std::chrono::milliseconds(ms)); 
+        std::this_thread::sleep_for(std::chrono::milliseconds(msec));
     }
 
 	void setEventCallback(const TimerEvent& event)
 	{
 		eventCallback = event;
-	}
-
-	void start(int64_t microseconds, bool repeat=false)
-	{
-		_isRepeat = repeat;
-		auto timeBegin = std::chrono::high_resolution_clock::now();
-		int64_t elapsed = 0;
-
-		do
-		{
-			std::this_thread::sleep_for(std::chrono::microseconds(microseconds - elapsed));
-			timeBegin = std::chrono::high_resolution_clock::now();
-			eventCallback();
-			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - timeBegin).count();
-			if (elapsed < 0)
-				elapsed = 0;
-		} while (_isRepeat);
-	}
-
-	void stop()
-	{
-		_isRepeat = false;
 	}
 
 private:
@@ -84,8 +56,7 @@ private:
 		return _nextTimeout;
 	}
 
-	TimerEvent eventCallback = [] {};
-    bool _isRepeat = false;
+	TimerEvent eventCallback = [] { return false; };
     uint32_t _interval = 0;
     int64_t _nextTimeout = 0;
 };
@@ -93,10 +64,9 @@ private:
 class TimerQueue
 {
 public:
-    TimerId addTimer(const TimerEvent& event, uint32_t ms, bool repeat);
+    TimerId addTimer(const TimerEvent& event, uint32_t msec);
     void removeTimer(TimerId timerId);
 
-    // 返回最近一次超时的时间, 没有定时器任务返回-1
     int64_t getTimeRemaining();
     void handleTimerEvent();
 
@@ -104,11 +74,12 @@ private:
     int64_t getTimeNow();
 
     std::mutex _mutex;
-    std::map<TimerId, std::shared_ptr<Timer>> _timers;
-    std::unordered_map<uint32_t, std::shared_ptr<Timer>> _repeatTimers;
+	std::unordered_map<TimerId, std::shared_ptr<Timer>> _timers;
+    std::map<std::pair<int64_t, TimerId>, std::shared_ptr<Timer>> _events;
     uint32_t _lastTimerId = 0;
     uint32_t _timeRemaining = 0;
 };
+
 }
 
 #endif 

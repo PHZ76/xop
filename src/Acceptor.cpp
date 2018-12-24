@@ -1,7 +1,7 @@
 ﻿#include "Acceptor.h"
 #include "EventLoop.h"
 #include "SocketUtil.h"
-#include "log.h"
+#include "Logger.h"
 
 using namespace xop;
 
@@ -23,12 +23,16 @@ Acceptor::~Acceptor()
     _tcpSocket->close();
 }
 
-void Acceptor::listen()
+int Acceptor::listen()
 {
-    _tcpSocket->listen(1024);
+	if (!_tcpSocket->listen(1024))
+	{
+		return -1;
+	}
     _acceptChannel->setReadCallback([this]() { this->handleAccept(); });
     _acceptChannel->enableReading();
     _eventLoop->updateChannel(_acceptChannel);
+	return 0;
 }
 
 void Acceptor::handleAccept()

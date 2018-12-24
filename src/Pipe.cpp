@@ -42,11 +42,12 @@ bool Pipe::create()
 
     SocketUtil::setNonBlock(_pipefd[0]);
     SocketUtil::setNonBlock(_pipefd[1]);
-#else
-    if (pipe2(_pipefd, O_NONBLOCK | O_CLOEXEC) < 0)
-        return false;
+#elif defined(__linux) || defined(__linux__) 
+	if (pipe2(_pipefd, O_NONBLOCK | O_CLOEXEC) < 0)
+	{
+		return false;
+	}
 #endif
-
     return true;
 }
 
@@ -54,7 +55,7 @@ int Pipe::write(void *buf, int len)
 {
 #if defined(WIN32) || defined(_WIN32) 
     return ::send(_pipefd[1], (char *)buf, len, 0);
-#else
+#elif defined(__linux) || defined(__linux__) 
     return ::write(_pipefd[1], buf, len);
 #endif 
 }
@@ -63,7 +64,7 @@ int Pipe::read(void *buf, int len)
 {
 #if defined(WIN32) || defined(_WIN32) 
     return recv(_pipefd[0], (char *)buf, len, 0);
-#else
+#elif defined(__linux) || defined(__linux__) 
     return ::read(_pipefd[0], buf, len);
 #endif 
 }
@@ -73,7 +74,7 @@ void Pipe::close()
 #if defined(WIN32) || defined(_WIN32) 
     closesocket(_pipefd[0]);
     closesocket(_pipefd[1]);
-#else
+#elif defined(__linux) || defined(__linux__) 
     ::close(_pipefd[0]);
     ::close(_pipefd[1]);
 #endif

@@ -22,23 +22,5 @@ TcpServer::~TcpServer()
 	
 }
 
-void TcpServer::newConnection(SOCKET sockfd)
-{
-    TcpConnectionPtr conn(new TcpConnection(_eventLoop, sockfd));
-    _connections[sockfd] = conn;
-    conn->setMessageCallback(_messageCallback);
-    conn->setCloseCallback([this](TcpConnectionPtr& conn) { this->removeConnection(conn); });
-}
-
-void TcpServer::removeConnection(TcpConnectionPtr& conn)
-{
-    SOCKET sockfd = conn->fd();
-    _eventLoop->addTriggerEvent([sockfd, this]()
-    {
-        this->_connections.erase(sockfd);
-    });
-}
-
-
 
 

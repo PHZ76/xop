@@ -5,41 +5,29 @@ using namespace xop;
 using namespace std;
 using namespace std::chrono;
 
-TimerId TimerQueue::addTimer(const TimerEvent& event, uint32_t ms, bool repeat)
-{
-    std::lock_guard<std::mutex> locker(_mutex);
+TimerId TimerQueue::addTimer(const TimerEvent& event, uint32_t ms)
+{    
+	std::lock_guard<std::mutex> locker(_mutex);
+    int64_t timeout = getTimeNow();
+	TimerId timerId = ++_lastTimerId;
 
-    int64_t timeoutPoint = getTimeNow();
-    TimerId timerId = {timeoutPoint+ms, ++_lastTimerId};
-    auto timer = make_shared<Timer>(event, ms, repeat);	
-
-    timer->setNextTimeout(timeoutPoint);
-
-    if(repeat)
-    {
-        _repeatTimers.emplace(timerId.second, timer);
-    }
-
-    _timers.emplace(timerId, std::move(timer)); 
-
+    auto timer = make_shared<Timer>(event, ms);	
+	timer->setNextTimeout(timeout);
+	_timers.emplace(timerId, timer);
+	_events.emplace(std::pair<int64_t, TimerId>(timeout + ms, timerId), std::move(timer));
     return timerId;
 }
 
 void TimerQueue::removeTimer(TimerId timerId)
 {
     std::lock_guard<std::mutex> locker(_mutex);
-
-    auto iter = _repeatTimers.find(timerId.second);	
-    if(iter != _repeatTimers.end())
-    {
-        TimerId t = {iter->second->getNextTimeout(), timerId.second};
-        _repeatTimers.erase(iter);
-        _timers.erase(t);		
-    }
-    else
-    {
-        _timers.erase(timerId);
-    }
+	auto iter = _timers.find(timerId);
+	if (iter != _timers.end())
+	{
+		int64_t timeout = iter->second->getNextTimeout();
+		_events.erase(std::pair<int64_t, TimerId>(timeout, timerId));
+		_timers.erase(timerId);
+	}
 }
 
 int64_t TimerQueue::getTimeNow()
@@ -52,37 +40,40 @@ int64_t TimerQueue::getTimeRemaining()
 {	
     std::lock_guard<std::mutex> locker(_mutex);
 
-    if(_timers.empty())
-     return -1;
+	if (_timers.empty())
+	{
+		return -1;
+	}
 
-    int64_t ms = _timers.begin()->first.first - getTimeNow();
-    if(ms <= 0)
-        return 0; 
+    int64_t msec = _events.begin()->first.first - getTimeNow();
+	if (msec <= 0)
+	{
+		msec = 0;
+	}
 
-    return ms;
+    return msec;
 }
 
 void TimerQueue::handleTimerEvent()
 {
-    if(!_timers.empty() || !_repeatTimers.empty())
+    if(!_timers.empty())
     {
         std::lock_guard<std::mutex> locker(_mutex);
-
         int64_t timePoint = getTimeNow();
-        while(!_timers.empty() && _timers.begin()->first.first<=timePoint)
+        while(!_timers.empty() && _events.begin()->first.first<=timePoint)
         {	
-            _timers.begin()->second->eventCallback();				
-            if(_timers.begin()->second->isRepeat())
+			TimerId timerId = _events.begin()->first.second;
+            bool flag = _events.begin()->second->eventCallback();
+            if(flag == true)
             {
-                _timers.begin()->second->setNextTimeout(timePoint);
-                TimerId t = {_timers.begin()->second->getNextTimeout(), _timers.begin()->first.second};		
-                auto timerPtr = std::move(_timers.begin()->second);			
-                _timers.erase(_timers.begin());
-                _timers.emplace(t, std::move(timerPtr));
+				_events.begin()->second->setNextTimeout(timePoint);
+                auto timerPtr = std::move(_events.begin()->second);
+				_events.erase(_events.begin());
+				_events.emplace(std::pair<int64_t, TimerId>(timerPtr->getNextTimeout(), timerId), timerPtr);
             }
             else		
             {
-                _timers.erase(_timers.begin());
+                _timers.erase(timerId);
             }
         }	
     }

@@ -37,7 +37,7 @@ void input(std::shared_ptr<TaskScheduler> taskScheduler, std::shared_ptr<Channel
 
 int main()
 {
-    std::shared_ptr<TaskScheduler> taskScheduler(new SelectTaskScheduler());
+    std::shared_ptr<TaskScheduler> taskScheduler(new TaskScheduler);
         
     std::shared_ptr<Channel> stdinChannel(new Channel(0));  // stdin fd: 0
     std::shared_ptr<Channel> stdoutChannel(new Channel(1)); // stdout fd: 1 
@@ -49,7 +49,8 @@ int main()
 
     while(1)
     {
-        taskScheduler->handleEvent(1000/*ms*/);
+        int msec = 1000;
+        taskScheduler->handleEvent(msec); 
     }
 
     return 0;

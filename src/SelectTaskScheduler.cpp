@@ -2,7 +2,7 @@
 // 2018-5-15
 
 #include "SelectTaskScheduler.h"
-#include "log.h"
+#include "Logger.h"
 #include "Timer.h"
 #include <cstring>
 #include <forward_list>
@@ -13,11 +13,14 @@ using namespace xop;
 #define SELECT_CTL_MOD  1
 #define SELECT_CTL_DEL	2
 
-SelectTaskScheduler::SelectTaskScheduler()
+SelectTaskScheduler::SelectTaskScheduler(int id)
+	: TaskScheduler(id)
 {
     FD_ZERO(&_fdReadBackup);
     FD_ZERO(&_fdWriteBackup);
     FD_ZERO(&_fdExpBackup);
+
+	this->updateChannel(_wakeupChannel);
 }
 
 SelectTaskScheduler::~SelectTaskScheduler()
@@ -78,7 +81,7 @@ bool SelectTaskScheduler::handleEvent(int timeout)
     if(_channels.empty())
     {
         if(timeout <= 0)
-            timeout = 1000;
+            timeout = 100;
         Timer::sleep(timeout);
         return true;
     }
@@ -156,7 +159,7 @@ bool SelectTaskScheduler::handleEvent(int timeout)
 
     if(timeout < 0)
     {
-        timeout = 1000;
+        timeout = 100;
     }
 
     struct timeval tv = { timeout/1000, timeout%1000*1000 };

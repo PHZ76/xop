@@ -13,7 +13,7 @@ namespace xop
 class EpollTaskScheduler : public TaskScheduler
 {
 public:
-    EpollTaskScheduler();
+    EpollTaskScheduler(int id);
     virtual ~EpollTaskScheduler();
 
     void updateChannel(ChannelPtr channel);
