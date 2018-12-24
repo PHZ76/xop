@@ -11,6 +11,4 @@
 #include "Timer.h"
 #include "Timestamp.h"
 
-bool XOP_Init();
-
 #endif
