@@ -16,7 +16,7 @@ class TcpConnection : public std::enable_shared_from_this<TcpConnection>
 public:
 	using Ptr = std::shared_ptr<TcpConnection>;
 	using DisconnectCallback = std::function<void()> ;
-	using ReadCallback = std::function<void(Ptr, xop::BufferReader& buffer)>;
+	using ReadCallback = std::function<void(std::shared_ptr<TcpConnection> conn, xop::BufferReader& buffer)>;
 
 	TcpConnection(TaskScheduler *taskScheduler, int sockfd);
 	virtual ~TcpConnection();
