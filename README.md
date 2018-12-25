@@ -3,8 +3,6 @@
 项目介绍
 -
 * 在工作中需要实现一个跨平台的RTSP服务器，在参考了开源项目muduo和live555的设计后，封装了一个简单的网络框架。
-* 感谢 [muduo](https://github.com/PHZ76/RtspServer)。
-* 感谢 [live555](https://github.com/chenshuo/muduo)。
 
 项目案例
 - 
