@@ -3,7 +3,6 @@
 
 // log
 
-#include "xop.h"
 #include "Logger.h"
 
 #if defined(WIN32) || defined(_WIN32) 

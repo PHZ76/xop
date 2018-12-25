@@ -17,7 +17,7 @@ typedef std::function<void(void)> TriggerEvent;
 class TaskScheduler 
 {
 public:
-	TaskScheduler(int id=0);
+	TaskScheduler(int id=1);
 	virtual ~TaskScheduler();
 
 	void start();

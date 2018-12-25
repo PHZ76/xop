@@ -1,7 +1,7 @@
 #include "TaskScheduler.h"
 #if defined(__linux) || defined(__linux__) 
 #include <signal.h>
-#endif    
+#endif
 
 using namespace xop;
 

@@ -2,10 +2,9 @@
 // PHZ
 
 // Ring Buffer
-
-#include "xop.h"
-#include <thread>
 #include "RingBuffer.h"
+#include "Timer.h"
+#include <thread>
 
 using namespace std;
 using namespace xop;

@@ -2,9 +2,6 @@
 // 2018-5-24
 
 #include "EventLoop.h"
-#if defined(__linux) || defined(__linux__) 
-#include <signal.h>
-#endif
 
 #if defined(WIN32) || defined(_WIN32) 
 #include<windows.h>

@@ -9,6 +9,7 @@ using namespace xop;
 
 BufferWriter::BufferWriter(int capacity) 
     : _maxQueueLength(capacity)
+	, _buffer(new std::queue<Packet>)
 {
 	
 }	
@@ -18,11 +19,11 @@ bool BufferWriter::append(std::shared_ptr<char> data, uint32_t size, uint32_t in
     if(size <= index)
         return false;
 
-    if((int)_buffer.size() >= _maxQueueLength)
+    if((int)_buffer->size() >= _maxQueueLength)
         return false;		
 
     Packet pkt = {data, size, index};
-    _buffer.emplace(std::move(pkt));	
+    _buffer->emplace(std::move(pkt));
 
     return true;
 }
@@ -32,7 +33,7 @@ bool BufferWriter::append(const char* data, uint32_t size, uint32_t index)
     if(size <= index)
         return false;
 
-    if((int)_buffer.size() >= _maxQueueLength)
+    if((int)_buffer->size() >= _maxQueueLength)
         return false;		
 
     Packet pkt;
@@ -41,28 +42,27 @@ bool BufferWriter::append(const char* data, uint32_t size, uint32_t index)
     pkt.size = size;
     pkt.writeIndex = index;
 
-    _buffer.emplace(std::move(pkt));
+    _buffer->emplace(std::move(pkt));
 
     return true;
 }
 
 int BufferWriter::send(int sockfd, int timeout)
 {		
-    if(_buffer.empty())
+    if(_buffer->empty())
         return 0;
 
     if(timeout > 0)
         SocketUtil::setBlock(sockfd, timeout); // 超时返回-1
 
-    Packet &pkt = _buffer.front();
-
+    Packet &pkt = _buffer->front();
     int ret = ::send(sockfd, pkt.data.get()+pkt.writeIndex, pkt.size-pkt.writeIndex, 0);
     if(ret > 0)
     {
         pkt.writeIndex += ret;
         if(pkt.size == pkt.writeIndex)
         {		
-            _buffer.pop();
+            _buffer->pop();
         }
     }
     else if(ret < 0)

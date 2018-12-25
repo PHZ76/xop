@@ -10,9 +10,9 @@ using namespace xop;
 const char BufferReader::kCRLF[] = "\r\n";
 
 BufferReader::BufferReader(uint32_t initialSize)
-    : _buffer(initialSize)
+    : _buffer(new std::vector<char>(initialSize))
 {
-	
+	_buffer->resize(initialSize);
 }	
 
 BufferReader::~BufferReader()
@@ -21,17 +21,17 @@ BufferReader::~BufferReader()
 }
 
 int BufferReader::readFd(int sockfd)
-{
+{	
     uint32_t size = writableBytes();
     if(size < MAX_BYTES_PER_READ) // 重新调整BufferReader大小
     {
-        uint32_t bufferReaderSize = _buffer.size();
+        uint32_t bufferReaderSize = _buffer->size();
         if(bufferReaderSize > MAX_BUFFER_SIZE)
         {
             return 0; // close
         }
         
-        _buffer.resize(bufferReaderSize + MAX_BYTES_PER_READ);
+        _buffer->resize(bufferReaderSize + MAX_BYTES_PER_READ);
     }
 	
     int bytesRead = ::recv(sockfd, beginWrite(), MAX_BYTES_PER_READ, 0);

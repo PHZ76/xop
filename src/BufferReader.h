@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>  
+#include <memory>  
 
 namespace xop
 {
@@ -15,7 +16,7 @@ namespace xop
 class BufferReader
 {
 public:	
-    static const uint32_t kInitialSize = 2048;
+	static const uint32_t kInitialSize = 2048;
     BufferReader(uint32_t initialSize = kInitialSize);
     ~BufferReader();
 
@@ -23,7 +24,7 @@ public:
     { return _writerIndex - _readerIndex; }
 
     uint32_t writableBytes() const
-    {  return _buffer.size() - _writerIndex; }
+    {  return _buffer->size() - _writerIndex; }
 
     char* peek() 
     { return begin() + _readerIndex; }
@@ -45,8 +46,8 @@ public:
 
     void retrieveAll() 
     { 
-        _writerIndex=0; 
-        _readerIndex=0; 
+        _writerIndex = 0; 
+        _readerIndex = 0; 
     }
 
     void retrieve(size_t len)
@@ -74,14 +75,14 @@ public:
     uint32_t readUntilCrlf(std::string& data);
 
     uint32_t bufferSize() const 
-    { return _buffer.size(); }
+    { return _buffer->size(); }
 
 private:
     char* begin()
-    { return &*_buffer.begin(); }
+    { return &*_buffer->begin(); }
 
     const char* begin() const
-    { return &*_buffer.begin(); }
+    { return &*_buffer->begin(); }
 
     char* beginWrite()
     { return begin() + _writerIndex; }
@@ -89,7 +90,7 @@ private:
     const char* beginWrite() const
     { return begin() + _writerIndex; }
 
-    std::vector<char> _buffer;
+    std::shared_ptr<std::vector<char>> _buffer;
     size_t _readerIndex = 0;
     size_t _writerIndex = 0;
 
