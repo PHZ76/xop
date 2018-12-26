@@ -23,6 +23,7 @@ public:
 			std::string res(buffer.peek(), buffer.readableBytes());
 			buffer.retrieveAll();
 			conn->send(res.c_str(), res.size());
+            return true; //false 关闭连接
 		});
 
 		return conn;

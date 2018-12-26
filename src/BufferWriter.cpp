@@ -49,32 +49,39 @@ bool BufferWriter::append(const char* data, uint32_t size, uint32_t index)
 
 int BufferWriter::send(int sockfd, int timeout)
 {		
-    if(_buffer->empty())
-        return 0;
-
     if(timeout > 0)
         SocketUtil::setBlock(sockfd, timeout); // 超时返回-1
 
-    Packet &pkt = _buffer->front();
-    int ret = ::send(sockfd, pkt.data.get()+pkt.writeIndex, pkt.size-pkt.writeIndex, 0);
-    if(ret > 0)
-    {
-        pkt.writeIndex += ret;
-        if(pkt.size == pkt.writeIndex)
-        {		
-            _buffer->pop();
-        }
-    }
-    else if(ret < 0)
-    {
+	int ret = 0;
+	int count = 1;
+	do
+	{
+		if (_buffer->empty())
+			return 0;
+
+		count -= 1;
+		Packet &pkt = _buffer->front();
+		ret = ::send(sockfd, pkt.data.get() + pkt.writeIndex, pkt.size - pkt.writeIndex, 0);
+		if (ret > 0)
+		{
+			pkt.writeIndex += ret;
+			if (pkt.size == pkt.writeIndex)
+			{
+				count += 1;
+				_buffer->pop();
+			}
+		}
+		else if (ret < 0)
+		{
 #if defined(__linux) || defined(__linux__)
-        if(errno==EINTR || errno==EAGAIN)			
+			if (errno == EINTR || errno == EAGAIN)
 #elif defined(WIN32) || defined(_WIN32)
-        int error = WSAGetLastError();
-		if (error == WSAEWOULDBLOCK || error == WSAEINPROGRESS || error == 0)
+			int error = WSAGetLastError();
+			if (error == WSAEWOULDBLOCK || error == WSAEINPROGRESS || error == 0)
 #endif
-            ret = 0;
-    }
+				ret = 0;
+		}
+	} while (count>0);
 
     if(timeout > 0)
         SocketUtil::setNonBlock(sockfd);

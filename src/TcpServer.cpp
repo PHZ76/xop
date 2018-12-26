@@ -22,17 +22,13 @@ TcpServer::TcpServer(EventLoop* eventLoop, std::string ip, uint16_t port)
 		if (tcpConn)
 		{
 			this->addConnection(sockfd, tcpConn);
-			tcpConn->setDisconnectCallback([this, sockfd] { 
-				std::lock_guard<std::mutex> locker(_mutex);
-				auto iter = _connections.find(sockfd);
-				if (iter != _connections.end())
-				{
-					auto taskScheduler = iter->second->getTaskScheduler();
+			tcpConn->setDisconnectCallback([this] (TcpConnection::Ptr conn){ 
+					auto taskScheduler = conn->getTaskScheduler();
+					int sockfd = conn->fd();
 					if (!taskScheduler->addTriggerEvent([this, sockfd] {this->removeConnection(sockfd); }))
 					{
 						taskScheduler->addTimer([this, sockfd]() {this->removeConnection(sockfd); return false;}, 1);
 					}
-				}
 			});
 		}
 	});
@@ -55,12 +51,12 @@ TcpConnection::Ptr TcpServer::newConnection(SOCKET sockfd)
 
 void TcpServer::addConnection(SOCKET sockfd, TcpConnection::Ptr tcpConn)
 {
-	std::lock_guard<std::mutex> locker(_mutex);
+	std::lock_guard<std::mutex> locker(_conn_mutex);
 	_connections.emplace(sockfd, tcpConn);
 }
 
 void TcpServer::removeConnection(SOCKET sockfd)
 {
-	std::lock_guard<std::mutex> locker(_mutex);
+	std::lock_guard<std::mutex> locker(_conn_mutex);
 	_connections.erase(sockfd);
 }

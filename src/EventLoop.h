@@ -29,7 +29,7 @@ public:
 
     void loop();
     void quit();
-	std::shared_ptr<TaskScheduler> getTaskScheduler(int index=-1);
+	std::shared_ptr<TaskScheduler> getTaskScheduler();
 
     bool addTriggerEvent(TriggerEvent callback);
     TimerId addTimer(TimerEvent timerEvent, uint32_t msec);
@@ -38,6 +38,8 @@ public:
     void removeChannel(ChannelPtr& channel);
 	
 private:
+	std::mutex _mutex;
+	int _index = 1;
 	std::vector<std::shared_ptr<TaskScheduler>> _taskSchedulers;
 	std::vector<std::shared_ptr<std::thread>> _threads;
 };

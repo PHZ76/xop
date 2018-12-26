@@ -39,7 +39,7 @@ protected:
 	uint16_t _port;
 	std::string _ip;
     std::shared_ptr<Acceptor> _acceptor; 
-	std::mutex _mutex;
+	std::mutex _conn_mutex;
 	std::unordered_map<SOCKET, std::shared_ptr<TcpConnection>> _connections;
 };
 

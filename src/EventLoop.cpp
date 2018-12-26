@@ -26,7 +26,11 @@ EventLoop::EventLoop(int nThreads)
 		}
 #endif
 	});
-    
+	if (nThreads <= 0)
+	{
+		nThreads = 1;
+	}
+
 	for (int n=0; n<nThreads; n++)
 	{	
 #if defined(__linux) || defined(__linux__) 
@@ -56,26 +60,22 @@ EventLoop::~EventLoop()
 	}
 }
 
-std::shared_ptr<TaskScheduler> EventLoop::getTaskScheduler(int index)
+std::shared_ptr<TaskScheduler> EventLoop::getTaskScheduler()
 {
-	if (index == 0)
-	{
-		return _taskSchedulers[0];
-	}
-
+	std::lock_guard<std::mutex> locker(_mutex);
 	if (_taskSchedulers.size() == 1)
 	{
-		return _taskSchedulers[0];
+		return _taskSchedulers.at(0);
 	}
 	else
 	{
-		static size_t index = 0;
-		index++;
-		if (index >= _taskSchedulers.size())
+		auto taskSchedulers = _taskSchedulers.at(_index);
+		_index++;
+		if (_index >= _taskSchedulers.size())
 		{
-			index = 1;
-		}
-		return _taskSchedulers[index];
+			_index = 1;
+		}		
+		return taskSchedulers;
 	}
 	
 	return nullptr;

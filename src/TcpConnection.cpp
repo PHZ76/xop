@@ -75,7 +75,11 @@ void TcpConnection::handleRead()
 
 	if (_readCB)
 	{
-		_readCB(shared_from_this(), *_readBufferPtr);
+		bool ret = _readCB(shared_from_this(), *_readBufferPtr);
+		if (false == ret)
+		{
+			this->handleClose();
+		}
 	}
 }
 
@@ -95,7 +99,7 @@ void TcpConnection::handleWrite()
 			return;
 		}
 		empty = _writeBufferPtr->isEmpty();
-	} while (!empty && ret>0);
+	} while (0);
 
 	if (empty)
 	{
@@ -119,7 +123,11 @@ void TcpConnection::handleClose()
 	{
 		_isClosed = false;
 		_taskScheduler->removeChannel(_channelPtr);
-		_disconnectCB();
+
+		if (_closeCB)
+			_closeCB(shared_from_this());
+
+		_disconnectCB(shared_from_this());
 	}
 }
 

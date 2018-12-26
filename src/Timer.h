@@ -43,6 +43,28 @@ public:
 		eventCallback = event;
 	}
 
+	void start(int64_t microseconds, bool repeat = false)
+	{
+		_isRepeat = repeat;
+		auto timeBegin = std::chrono::high_resolution_clock::now();
+		int64_t elapsed = 0;
+
+		do
+		{
+			std::this_thread::sleep_for(std::chrono::microseconds(microseconds - elapsed));
+			timeBegin = std::chrono::high_resolution_clock::now();
+			eventCallback();
+			elapsed = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - timeBegin).count();
+			if (elapsed < 0)
+				elapsed = 0;
+		} while (_isRepeat);
+	}
+
+	void stop()
+	{
+		_isRepeat = false;
+	}	
+
 private:
 	friend class TimerQueue;
 
@@ -56,6 +78,7 @@ private:
 		return _nextTimeout;
 	}
 
+	bool _isRepeat = false;
 	TimerEvent eventCallback = [] { return false; };
     uint32_t _interval = 0;
     int64_t _nextTimeout = 0;

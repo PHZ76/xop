@@ -6,6 +6,7 @@
 
 #include <functional>
 #include <memory>
+#include "Socket.h"
 
 namespace xop
 {
@@ -48,7 +49,7 @@ public:
     void setErrorCallback(EventCallback&& cb)
     { _errorCallback = std::move(cb); } 
 
-    int fd() const { return _fd; }
+	SOCKET fd() const { return _fd; }
     int events() const { return _events; }
     void setEvents(int events) { _events = events; }
     
@@ -98,7 +99,7 @@ private:
     EventCallback _closeCallback = []{};
     EventCallback _errorCallback = []{};
     
-    int _fd = 0;
+	SOCKET _fd = 0;
     int _events = 0;    
 };
 
