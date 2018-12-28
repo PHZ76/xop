@@ -16,6 +16,7 @@ EpollTaskScheduler::EpollTaskScheduler(int id)
 #if defined(__linux) || defined(__linux__) 
     _epollfd = epoll_create1(0);
  #endif
+    this->updateChannel(_wakeupChannel);
 }
 
 EpollTaskScheduler::~EpollTaskScheduler()
@@ -86,10 +87,10 @@ void EpollTaskScheduler::removeChannel(ChannelPtr& channel)
 bool EpollTaskScheduler::handleEvent(int timeout)
 {
 #if defined(__linux) || defined(__linux__) 
-    struct epoll_event events[100] = {0};
+    struct epoll_event events[512] = {0};
     int numEvents = -1;
 
-    numEvents = epoll_wait(_epollfd, events, 100, timeout);
+    numEvents = epoll_wait(_epollfd, events, 512, timeout);
     if(numEvents < 0)  // 
     {
         if(errno != EINTR)

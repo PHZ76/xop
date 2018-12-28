@@ -39,7 +39,7 @@ public:
 	
 private:
 	std::mutex _mutex;
-	int _index = 1;
+	uint32_t _index = 1;
 	std::vector<std::shared_ptr<TaskScheduler>> _taskSchedulers;
 	std::vector<std::shared_ptr<std::thread>> _threads;
 };

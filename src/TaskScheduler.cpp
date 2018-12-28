@@ -16,7 +16,7 @@ TaskScheduler::TaskScheduler(int id)
 		_wakeupChannel.reset(new Channel(_wakeupPipe->readfd()));
 		_wakeupChannel->enableReading();
 		_wakeupChannel->setReadCallback([this]() { this->wake(); });		
-	}
+	}        
 }
 
 TaskScheduler::~TaskScheduler()
