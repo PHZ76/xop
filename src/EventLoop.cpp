@@ -41,44 +41,44 @@ EventLoop::EventLoop(int nThreads)
 		_taskSchedulers.push_back(taskSchedulerPtr);
 		if (n != 0)
 		{
-			std::shared_ptr<std::thread> t(new std::thread(&TaskScheduler::start, taskSchedulerPtr.get()));
-			_threads.push_back(t);
+			std::shared_ptr<std::thread> t(new std::thread(&TaskScheduler::start, taskSchedulerPtr.get()));			
+            _threads.push_back(t);
 		}
 	}
 }
 
 EventLoop::~EventLoop()
 {
-	for (auto iter : _taskSchedulers)
-	{
-		iter->stop();
-	}
+    for (auto iter : _taskSchedulers)
+    {
+        iter->stop();
+    }
 
-	for (auto iter : _threads)
-	{
-		iter->join();
-	}
+    for (auto iter : _threads)
+    {
+        iter->join();
+    }
 }
 
 std::shared_ptr<TaskScheduler> EventLoop::getTaskScheduler()
 {
-	std::lock_guard<std::mutex> locker(_mutex);
-	if (_taskSchedulers.size() == 1)
-	{
-		return _taskSchedulers.at(0);
-	}
-	else
-	{
-		auto taskSchedulers = _taskSchedulers.at(_index);
-		_index++;
-		if (_index >= _taskSchedulers.size())
-		{
-			_index = 1;
-		}		
-		return taskSchedulers;
-	}
-	
-	return nullptr;
+    std::lock_guard<std::mutex> locker(_mutex);
+    if (_taskSchedulers.size() == 1)
+    {
+        return _taskSchedulers.at(0);
+    }
+    else
+    {
+        auto taskSchedulers = _taskSchedulers.at(_index);
+        _index++;
+        if (_index >= _taskSchedulers.size())
+        {
+            _index = 1;
+        }		
+        return taskSchedulers;
+    }
+
+    return nullptr;
 }
 
 void EventLoop::loop()

@@ -11,12 +11,12 @@ TaskScheduler::TaskScheduler(int id)
 	, _wakeupPipe(std::make_shared<Pipe>())
 	, _triggerEvents(new TriggerEventQueue(kMaxTriggetEvents))
 {
-	if (_wakeupPipe->create())
-	{
-		_wakeupChannel.reset(new Channel(_wakeupPipe->readfd()));
-		_wakeupChannel->enableReading();
-		_wakeupChannel->setReadCallback([this]() { this->wake(); });		
-	}        
+    if (_wakeupPipe->create())
+    {
+        _wakeupChannel.reset(new Channel(_wakeupPipe->readfd()));
+        _wakeupChannel->enableReading();
+        _wakeupChannel->setReadCallback([this]() { this->wake(); });		
+    }        
 }
 
 TaskScheduler::~TaskScheduler()
@@ -77,9 +77,8 @@ bool TaskScheduler::addTriggerEvent(TriggerEvent callback)
 
 void TaskScheduler::wake()
 {
-	char event[10] = { 0 };
-	while (_wakeupPipe->read(event, 10) > 0);
-
+	char event[1] = { 0 };
+	_wakeupPipe->read(event, 1);
 	return;
 }
 

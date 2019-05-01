@@ -13,10 +13,17 @@
 namespace xop
 {
     
+uint32_t readUint32BE(char* data);
+uint32_t readUint32LE(char* data);
+uint32_t readUint24BE(char* data);
+uint32_t readUint24LE(char* data);
+uint16_t readUint16BE(char* data);
+uint16_t readUint16LE(char* data);
+    
 class BufferReader
 {
 public:	
-	static const uint32_t kInitialSize = 2048;
+	static const uint32_t kInitialSize = 4096;
     BufferReader(uint32_t initialSize = kInitialSize);
     ~BufferReader();
 
@@ -74,7 +81,7 @@ public:
     uint32_t readAll(std::string& data);
     uint32_t readUntilCrlf(std::string& data);
 
-    uint32_t bufferSize() const 
+    uint32_t size() const 
     { return _buffer->size(); }
 
 private:
@@ -95,8 +102,8 @@ private:
     size_t _writerIndex = 0;
 
     static const char kCRLF[];
-    static const uint32_t MAX_BYTES_PER_READ = 2048;
-    static const uint32_t MAX_BUFFER_SIZE = 10240;
+    static const uint32_t MAX_BYTES_PER_READ = 4096;
+    static const uint32_t MAX_BUFFER_SIZE = 10240*100;
 };
 
 }

@@ -7,6 +7,48 @@
 
 using namespace xop;
 
+void xop::writeUint32BE(char* p, uint32_t value)
+{
+    p[0] = value >> 24;
+	p[1] = value >> 16;
+	p[2] = value >> 8;
+	p[3] = value & 0xff;
+}
+
+void xop::writeUint32LE(char* p, uint32_t value)
+{
+    p[0] = value & 0xff;
+	p[1] = value >> 8;
+	p[2] = value >> 16;
+	p[3] = value >> 24;
+}
+
+void xop::writeUint24BE(char* p, uint32_t value)
+{
+	p[0] = value >> 16;
+	p[1] = value >> 8;
+	p[2] = value & 0xff;
+}
+
+void xop::writeUint24LE(char* p, uint32_t value)
+{
+    p[0] = value & 0xff;
+	p[1] = value >> 8;
+	p[2] = value >> 16;
+}
+
+void xop::writeUint16BE(char* p, uint16_t value)
+{
+    p[0] = value >> 8;
+	p[1] = value & 0xff;
+}
+
+void xop::writeUint16LE(char* p, uint16_t value)
+{
+    p[0] = value & 0xff;
+	p[1] = value >> 8;
+}
+
 BufferWriter::BufferWriter(int capacity) 
     : _maxQueueLength(capacity)
 	, _buffer(new std::queue<Packet>)
@@ -53,7 +95,7 @@ int BufferWriter::send(int sockfd, int timeout)
         SocketUtil::setBlock(sockfd, timeout); // 超时返回-1
 
 	int ret = 0;
-	int count = 1;
+	int count = 5;
 	do
 	{
 		if (_buffer->empty())
@@ -61,7 +103,7 @@ int BufferWriter::send(int sockfd, int timeout)
 
 		count -= 1;
 		Packet &pkt = _buffer->front();
-		ret = ::send(sockfd, pkt.data.get() + pkt.writeIndex, pkt.size - pkt.writeIndex, 0);
+		ret = ::send(sockfd, pkt.data.get() + pkt.writeIndex, pkt.size - pkt.writeIndex, 0);        
 		if (ret > 0)
 		{
 			pkt.writeIndex += ret;
@@ -72,7 +114,7 @@ int BufferWriter::send(int sockfd, int timeout)
 			}
 		}
 		else if (ret < 0)
-		{
+		{          
 #if defined(__linux) || defined(__linux__)
 			if (errno == EINTR || errno == EAGAIN)
 #elif defined(WIN32) || defined(_WIN32)
@@ -80,8 +122,8 @@ int BufferWriter::send(int sockfd, int timeout)
 			if (error == WSAEWOULDBLOCK || error == WSAEINPROGRESS || error == 0)
 #endif
 				ret = 0;
-		}
-	} while (count>0);
+		}        
+	} while (count>0 && ret>0);
 
     if(timeout > 0)
         SocketUtil::setNonBlock(sockfd);
