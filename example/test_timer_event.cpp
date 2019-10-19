@@ -5,6 +5,7 @@
 
 #include "EventLoop.h"
 #include "Timestamp.h"
+#include "Timer.h"
 #include <memory> 
 
 using namespace xop;
@@ -18,19 +19,22 @@ void test()
 
 int main()
 {
-    auto eventLoop = make_shared<EventLoop>(); 
+	auto eventLoop = make_shared<EventLoop>(); 
 
-    // 每隔一秒打印一次时间 
-    int msec = 1000;    
-    auto tid = eventLoop->addTimer([eventLoop]{ 
-        eventLoop->addTriggerEvent([]{
-            test();            
-        }); 
-        return true; // false:退出定时器
-    }, msec);    
+	// 每隔一秒打印一次时间 
+	int msec = 1000;    
+	auto tid = eventLoop->addTimer([eventLoop]{ 
+		eventLoop->addTriggerEvent([]{
+			test();            
+		}); 
+		return true; // false:退出定时器
+	}, msec);    
 
-    eventLoop->loop();
-    
-    return 0;
+	while(1)
+	{
+		Timer::sleep(1);        
+	}
+
+	return 0;
 }
 

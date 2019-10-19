@@ -4,6 +4,7 @@
 // log
 
 #include "Logger.h"
+#include "Timer.h"
 
 #if defined(WIN32) || defined(_WIN32) 
 #pragma comment(lib, "Ws2_32.lib")
@@ -16,12 +17,9 @@ using namespace std;
 int main()
 {    
     //Logger::instance().setLogFile("log.txt");
-    LOG_DEBUG("hello world.");    
+    LOG_INFO("hello world.");    
     LOG_ERROR("hello world.");  
-    
-    //EventLoop eventLoop;     
-    //eventLoop.loop();
-    
+    xop::Timer::sleep(1000);
     return 0;
 }
 

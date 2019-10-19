@@ -5,6 +5,7 @@
 
 #include "TcpServer.h"
 #include "EventLoop.h"
+#include "Timer.h"
 
 class EchoServer : public xop::TcpServer
 {
@@ -40,7 +41,10 @@ int main(int argc, char **argv)
 	EchoServer server(eventLoop, "0.0.0.0", 12345);
 	server.start();
 
-	eventLoop.loop();
+	while(1)
+	{
+		xop::Timer::sleep(1);        
+	}
 
 	return 0;
 }
