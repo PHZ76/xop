@@ -16,11 +16,11 @@ using namespace std;
 
 int main()
 {    
-    //Logger::instance().setLogFile("log.txt");
-    LOG_INFO("hello world.");    
-    LOG_ERROR("hello world.");  
-    xop::Timer::sleep(1000);
-    return 0;
+	//Logger::instance().init("log.txt");
+	LOG_INFO("hello world.");    
+	LOG_ERROR("hello world.");  
+	xop::Timer::Sleep(1000);
+	return 0;
 }
 
 

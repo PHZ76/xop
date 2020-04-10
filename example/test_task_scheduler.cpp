@@ -9,48 +9,45 @@
 using namespace std;
 using namespace xop;
 
-void output(std::shared_ptr<TaskScheduler> taskScheduler, std::shared_ptr<Channel> stdoutChannel, std::string data)
+void output(std::shared_ptr<TaskScheduler> task_scheduler, std::shared_ptr<Channel> stdout_channel, std::string data)
 {
 	cout << "stdout: " << data << endl;
 
-	// 取消写事件, 否则写事件会一直触发
-	if(stdoutChannel->isWriting())
+	if(stdout_channel->IsWriting())
 	{
-		 stdoutChannel->setEvents(0);
-		 taskScheduler->updateChannel(stdoutChannel);             
+		 stdout_channel->SetEvents(0);
+		 task_scheduler->UpdateChannel(stdout_channel);             
 	} 
 }
 
-void input(std::shared_ptr<TaskScheduler> taskScheduler, std::shared_ptr<Channel> stdoutChannel)
+void input(std::shared_ptr<TaskScheduler> task_scheduler, std::shared_ptr<Channel> stdout_channel)
 {
 	string data;
 	cin >> data;
-
-	//触发写事件
-	if(!stdoutChannel->isWriting())
+	
+	if(!stdout_channel->IsWriting())
 	{
-		stdoutChannel->setEvents(EVENT_OUT);
-		stdoutChannel->setWriteCallback(std::bind(output, taskScheduler, stdoutChannel, data));
-		taskScheduler->updateChannel(stdoutChannel);  
+		stdout_channel->SetEvents(EVENT_OUT);
+		stdout_channel->SetWriteCallback(std::bind(output, task_scheduler, stdout_channel, data));
+		task_scheduler->UpdateChannel(stdout_channel);  
 	}    
 }
 
 int main()
 {
-	std::shared_ptr<xop::SelectTaskScheduler> taskScheduler(new xop::SelectTaskScheduler);
+	std::shared_ptr<xop::SelectTaskScheduler> task_scheduler(new xop::SelectTaskScheduler);
 		
-	std::shared_ptr<Channel> stdinChannel(new Channel(0));  // stdin fd: 0
-	std::shared_ptr<Channel> stdoutChannel(new Channel(1)); // stdout fd: 1 
+	std::shared_ptr<Channel> stdin_channel(new Channel(0));  // stdin fd: 0
+	std::shared_ptr<Channel> stdout_channel(new Channel(1)); // stdout fd: 1 
 
-	// 监听读事件
-	stdinChannel->setEvents(EVENT_IN);
-	stdinChannel->setReadCallback(std::bind(input, taskScheduler, stdoutChannel));
-	taskScheduler->updateChannel(stdinChannel);
+	stdin_channel->SetEvents(EVENT_IN);
+	stdin_channel->SetReadCallback(std::bind(input, task_scheduler, stdout_channel));
+	task_scheduler->UpdateChannel(stdin_channel);
 
 	while(1)
 	{
 		int msec = 1000;
-		taskScheduler->handleEvent(msec); 
+		task_scheduler->HandleEvent(msec); 
 	}
 
 	return 0;

@@ -1,4 +1,4 @@
-﻿// 2018-5-7
+// 2018-5-7
 // PHZ
 
 // Timer event, Trigger event
@@ -11,28 +11,26 @@
 using namespace xop;
 using namespace std;
 
-// 打印时间
 void test()
 {
-    std::cout << Timestamp::localtime() << std::endl;
+	std::cout << Timestamp::localtime() << std::endl;
 }
 
 int main()
 {
-	auto eventLoop = make_shared<EventLoop>(); 
+	auto event_loop = make_shared<EventLoop>(); 
 
-	// 每隔一秒打印一次时间 
 	int msec = 1000;    
-	auto tid = eventLoop->addTimer([eventLoop]{ 
-		eventLoop->addTriggerEvent([]{
+	auto tid = event_loop->AddTimer([event_loop]{ 
+		event_loop->AddTriggerEvent([]{
 			test();            
 		}); 
-		return true; // false:退出定时器
+		return true; 
 	}, msec);    
 
 	while(1)
 	{
-		Timer::sleep(1);        
+		Timer::Sleep(1);        
 	}
 
 	return 0;

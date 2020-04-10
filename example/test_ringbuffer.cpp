@@ -9,33 +9,33 @@
 using namespace std;
 using namespace xop;
 
-void readThread(RingBuffer<string>& ringBuffer)
+void ReadThread(RingBuffer<string>& ring_buffer)
 {
-    while(1)
-    {
-         std::string data;    
-        if(ringBuffer.pop(data))
-        {
-            std::cout << data << flush;
-        }
-        
-        Timer::sleep(300);      
-    }   
+	while(1)
+	{
+		 std::string data;    
+		if(ring_buffer.pop(data))
+		{
+			std::cout << data << flush;
+		}
+		
+		Timer::Sleep(300);      
+	}   
 }
 
 int main()
 {
-    RingBuffer<string> ringBuffer;
+	RingBuffer<string> ring_buffer;
 
-    thread t(readThread, std::ref(ringBuffer));
-    t.detach();
+	thread t(ReadThread, std::ref(ring_buffer));
+	t.detach();
 
-    while(1)
-    {
-        Timer::sleep(500);        
-        ringBuffer.push(string("*"));
-    }
-	
-    return 0;
+	while(1)
+	{
+		Timer::Sleep(500);        
+		ring_buffer.push(string("*"));
+	}
+
+	return 0;
 }
 

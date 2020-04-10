@@ -10,21 +10,21 @@
 class EchoServer : public xop::TcpServer
 {
 public:
-	EchoServer(xop::EventLoop& eventLoop, std::string ip, uint16_t port)
-		: TcpServer(&eventLoop, ip, port)
+	EchoServer(xop::EventLoop& eventLoop)
+		: TcpServer(&eventLoop)
 	{ }
 
 	~EchoServer() { }
 
-	virtual xop::TcpConnection::Ptr newConnection(SOCKET sockfd)
+	virtual xop::TcpConnection::Ptr OnConnect(SOCKET sockfd)
 	{
-		auto conn = std::make_shared<xop::TcpConnection>(_eventLoop->getTaskScheduler().get(), sockfd);
+		auto conn = std::make_shared<xop::TcpConnection>(event_loop_->GetTaskScheduler().get(), sockfd);
 
-		conn->setReadCallback([this](xop::TcpConnection::Ptr conn, xop::BufferReader& buffer) { 
-			std::string res(buffer.peek(), buffer.readableBytes());
-			buffer.retrieveAll();
-			conn->send(res.c_str(), res.size());
-            return true; //false 关闭连接
+		conn->SetReadCallback([this](xop::TcpConnection::Ptr conn, xop::BufferReader& buffer) { 
+			std::string res(buffer.Peek(), buffer.ReadableBytes());
+			buffer.RetrieveAll();
+			conn->Send(res.c_str(), res.size());
+			return true; 
 		});
 
 		return conn;
@@ -36,15 +36,16 @@ private:
 
 int main(int argc, char **argv)
 {
-	xop::EventLoop eventLoop;
+	xop::EventLoop event_loop;
 
-	EchoServer server(eventLoop, "0.0.0.0", 12345);
-	server.start();
+	EchoServer server(event_loop);
+	server.Start("0.0.0.0", 12345);
 
 	while(1)
 	{
-		xop::Timer::sleep(1);        
+		xop::Timer::Sleep(1);        
 	}
 
+	server.Stop();
 	return 0;
 }
