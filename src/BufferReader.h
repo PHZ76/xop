@@ -74,7 +74,7 @@ public:
 		}
 	}
 
-	void retrieveUntil(const char* end)
+	void RetrieveUntil(const char* end)
 	{ Retrieve(end - Peek()); }
 
 	int Read(SOCKET sockfd);
