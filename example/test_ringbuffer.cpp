@@ -14,7 +14,7 @@ void ReadThread(RingBuffer<string>& ring_buffer)
 	while(1)
 	{
 		 std::string data;    
-		if(ring_buffer.pop(data))
+		if(ring_buffer.Pop(data))
 		{
 			std::cout << data << flush;
 		}
@@ -33,7 +33,7 @@ int main()
 	while(1)
 	{
 		Timer::Sleep(500);        
-		ring_buffer.push(string("*"));
+		ring_buffer.Push(string("*"));
 	}
 
 	return 0;

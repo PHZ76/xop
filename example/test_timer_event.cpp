@@ -13,7 +13,7 @@ using namespace std;
 
 void test()
 {
-	std::cout << Timestamp::localtime() << std::endl;
+	std::cout << Timestamp::Localtime() << std::endl;
 }
 
 int main()
