@@ -26,12 +26,12 @@ public:
 
 	bool Push(const T& data) 
 	{ 
-		return pushData(std::forward<T>(data)); 
+		return pushData(data);
 	} 	
 
 	bool Push(T&& data) 
 	{ 
-		return PushData(data); 
+		return PushData(std::move(data));
 	} 
         
 	bool Pop(T& data)

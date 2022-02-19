@@ -33,19 +33,27 @@ bool Pipe::Create()
 	}
 
 	if (again == 0) {
+		rp.Close();
+		wp.Close();
 		return false;
 	}
     
 	if (!rp.Listen(1)) {
+		rp.Close();
+		wp.Close();
 		return false;
 	}
       
 	if (!wp.Connect("127.0.0.1", port)) {
+		rp.Close();
+		wp.Close();
 		return false;
 	}
 
 	pipe_fd_[0] = rp.Accept();
+	rp.Close();
 	if (pipe_fd_[0] < 0) {
+		wp.Close();
 		return false;
 	}
 
